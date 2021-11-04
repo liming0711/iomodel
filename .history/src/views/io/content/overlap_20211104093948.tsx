@@ -42,13 +42,13 @@ const OverlapPanel: React.FC<{ data: OverlapProps | undefined }> = (props) => {
     const singleAxis: any = [];
     const series: any = [];
 
-    const keys = Object.keys(data!);
+    const keys = Object.keys(aa);
     keys.forEach((key) => {
-      const files = Object.keys(data![key].read);
+      const files = Object.keys(aa[key].read);
       files.forEach((filename, idx) => {
         const dataItem: any = { name: filename };
         fileNames.push(filename);
-        data![key]['read'][filename].forEach((item) => {
+        aa[key]['read'][filename].forEach((item) => {
           const _title = `[${item[0].join(', ')}]`;
           let existItem = columns.find((v) => v.title === _title);
           if (!existItem) {
@@ -96,7 +96,7 @@ const OverlapPanel: React.FC<{ data: OverlapProps | undefined }> = (props) => {
       // File Name 不参与计算，所以使用slice避开
       columns.slice(1).forEach((c, i) => {
         const date = (c.key as string).split('__')[0];
-        const files = data![date]['read'][item];
+        const files = aa[date]['read'][item];
         const file = files && files.find((f) => {
           const _title = `[${f[0].join(', ')}]`;
           return c.title === _title;

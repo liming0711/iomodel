@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Spin, Layout, Radio, RadioChangeEvent, message } from 'antd';
-import { DashboardOutlined, DoubleLeftOutlined } from '@ant-design/icons';
 import MenuBar from '@/components/menu';
 import IOContent from './content/content';
 import {
@@ -89,6 +88,7 @@ const IO: React.FC = () => {
   ) => {
     const tempObj: { [key: string]: DataItemOption } = {};
     Object.keys(data).forEach((file) => {
+      console.log('--- file ---', file);
       const rnd = data[file].R;
       const seq = data[file].S;
       deepmerge(true, tempObj, handleReadWriteOperation(rnd, 'RND', op, time, tempObj, records));
@@ -97,6 +97,7 @@ const IO: React.FC = () => {
     return tempObj;
   };
   const handleReadWriteData = (data: ReadWriteOptions): ReadWriteResult => {
+    console.log('--- handleReadWriteData ---', data);
     const times = Object.keys(data);
     const tempObj: { [key: string]: DataItemOption } = {};
     const records: DataItemOption = {};
@@ -105,6 +106,7 @@ const IO: React.FC = () => {
       const write = handleReadWriteCount(data[time].write.distribution, 'W', time, records);
       deepmerge(true, tempObj, read, write);
     });
+    console.log('--- Read, Write ---', tempObj);
     const topn_count = Object
       .entries(records)
       .sort((a, b) => b[1] - a[1])
@@ -128,25 +130,12 @@ const IO: React.FC = () => {
       total_count[_key] += records[key];
     })
 
+    console.log('--- All Read & Write ---', tempObj, records, topn_count, op_data, total_count);
     return { op_data, times, topn_count, total_count };
   };
 
   const handleFileData = (data: FileOperationOptions): FileOperationResult => {
-    const operations = [
-      'total',
-      'seek',
-      'read',
-      'open',
-      'release',
-      'write',
-      'lookup',
-      'atomic_open',
-      'unlink',
-      'symlink',
-      'rmdir',
-      'mkdir',
-      'setattr'
-    ] as (keyof Required<FileOperationItem>)[];
+    const operations = ['total', 'seek', 'read', 'open', 'release', 'write', 'lookup', 'atomic_open', 'unlink', 'symlink', 'rmdir', 'mkdir', 'setattr'] as (keyof Required<FileOperationItem>)[];
     const times = Object.keys(data);
     const records: { [key: string ]: number[] } = {};
     const tempObj: DataItemOption = {};
@@ -185,6 +174,7 @@ const IO: React.FC = () => {
       return ([key, series]);
     });
   
+    console.log('--- OPPPP ---', records, tempObj, max10Item, topn_file_ops_data);
     return { times, op_data, topn_file_ops_data };
   };
 
@@ -202,9 +192,11 @@ const IO: React.FC = () => {
 
   useEffect(() => {
     if (selected && selected.length >= 2) {
+      console.log(selected);
       setLoading(true);
       getInfo(selected[2], selected[1])
         .then((res) => {
+          console.log('--- Info ---', res);
           const { steps = [] } = res;
           setSteps(steps);
           setInterval(steps[0]);
@@ -222,14 +214,36 @@ const IO: React.FC = () => {
 
           axios.all(analysedRequest)
             .then(([f, rw, p, ua, or]) => {
+              console.log('--- file_op_count data ---', f, rw, p, ua, or);
               setOperation(handleFileData(f as FileOperationOptions));
-              setReadWrite(handleReadWriteData(rw as ReadWriteOptions));
+              // setReadWrite(handleReadWriteData(rw as ReadWriteOptions));
               setParabuffer(p);
               setUnaligned(ua);
-              setOverlapRead(or);
+              const aa = {
+                '2020-11-02_12:12:12': {
+                  'read': {
+                    'file_name_1':[
+                      [[0, 1024], 20],
+                      [[2048, 1024], 100]
+                    ],
+                    'file_name_2':[
+                      [[128, 1024], 77]
+                    ]
+                  }
+                },
+                '2020-11-03_12:12:12': {
+                  'read': {
+                    'file_name_3':[
+                      [[256, 10240], 30],
+                      [[2048, 1024], 110]
+                    ]
+                  }
+                }
+              };
+              setOverlapRead(aa);
             })
             .catch((err) => {
-              console.error(err);
+              console.log('--- file_op_count fail ---', res);
             })
             .finally(() => {
               setLoading(false);
@@ -246,6 +260,7 @@ const IO: React.FC = () => {
     const _menus: MenuOption[] = [];
     getAllProjects()
       .then((res) => {
+        console.log('--- projects ---', res);
         const requests: Promise<string[]>[] = [];
         const requests2: Promise<any>[] = [];
         (res ?? []).forEach((project) => {
@@ -270,11 +285,12 @@ const IO: React.FC = () => {
             });
             axios.all<any>(requests2)
               .then((infos) => {
+                console.log('--- infos ---', infos);
                 const _infos = infos.concat();
                 _menus.forEach((i) => {
                   i.children!.forEach((c) => {
                     c.children = [{
-                      key: '全部',
+                      key: 'all',
                       title: '全部'
                     }].concat(_infos[0].hosts.map((h: string) => ({
                       key: h,
@@ -283,19 +299,20 @@ const IO: React.FC = () => {
                     _infos.shift();
                   });
                 });
+                console.log('--- ranges ---', ranges, _menus, requests2, handleSelectedPath(_menus));
                 setMenuData(_menus);
                 setSelected(handleSelectedPath(_menus).reverse());
               })
               .catch((err) => {
-                console.error(err);
+                console.log(err);
               });
           })
           .catch((err) => {
-            console.error(err);
+            console.log(err);
           });
       })
       .catch((err) => {
-        console.error(err);
+        console.log(err);
       });
   }, []);
   
@@ -306,6 +323,7 @@ const IO: React.FC = () => {
     setSelected(selected);
   };
   const onIntervalChange = (e: RadioChangeEvent) => {
+    console.log(e);
     setInterval(e.target.value);
   };
   return (
@@ -315,7 +333,7 @@ const IO: React.FC = () => {
           collapsible
           collapsed={collapsed}
           onCollapse={onCollapse}
-          trigger={<DoubleLeftOutlined />}
+          trigger="TODO"
           className="layout-sider"
           width={240}
         >
@@ -324,8 +342,7 @@ const IO: React.FC = () => {
         <Content className="layout-content">
           <Layout className="layout-wrapper io-wrapper">
             <Header className="layout-header io-header">
-              <DashboardOutlined />
-              <span className="io-title">{selected.length > 0 ? selected.slice().reverse().join(' / ') : ''}</span>
+              <span className="io-title">{selected.length > 0 ? selected.reverse().join(' / ') : ''}</span>
             </Header>
             <Content className="layout-content io-content">
               <div className="interval-wrapper">

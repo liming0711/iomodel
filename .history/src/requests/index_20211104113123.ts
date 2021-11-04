@@ -68,6 +68,7 @@ export const getSource = (): Promise<string[]> => {
   return new Promise((resolve, reject) => {
     axios.get('/getAllDataSources.action')
       .then((res) => {
+        console.log('--- source data ---', res.data);
         if (Array.isArray(res.data)) {
           resolve(res.data);
         }
@@ -83,6 +84,7 @@ export const getSteps = (source: string): Promise<number[]> => {
   return new Promise((resolve, reject) => {
     axios.get(`/getStepsByDataSource.action?source=${source}`)
       .then((res) => {
+        console.log('--- steps data ---', res.data);
         if (Array.isArray(res.data) && res.data.length > 0) {
           const result: number[] = [];
           res.data.forEach((item) => {
@@ -107,6 +109,7 @@ export const getReadWriteData = (
   return new Promise((resolve, reject) => {
     axios.get(`/getReadWriteData.action?step=${step}&source=${source}`)
       .then((res) => {
+        console.log('--- read write data ---', res.data);
         if (isEmptyObject(res.data)) {
           console.warn('读写数据为空');
         }
@@ -127,6 +130,7 @@ export const getOperationData = (
   return new Promise((resolve, reject) => {
     axios.get(`/getFileOpsData.action?step=${step}&source=${source}`)
       .then((res) => {
+        console.log('--- operation data ---', res.data);
         if (isEmptyObject(res.data)) {
           console.warn('操作数据为空');
         }

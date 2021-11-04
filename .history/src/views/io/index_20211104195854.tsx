@@ -226,7 +226,28 @@ const IO: React.FC = () => {
               setReadWrite(handleReadWriteData(rw as ReadWriteOptions));
               setParabuffer(p);
               setUnaligned(ua);
-              setOverlapRead(or);
+              const aa = {
+                '2020-11-02_12:12:12': {
+                  'read': {
+                    'file_name_1':[
+                      [[0, 1024], 20],
+                      [[2048, 1024], 100]
+                    ],
+                    'file_name_2':[
+                      [[128, 1024], 77]
+                    ]
+                  }
+                },
+                '2020-11-03_12:12:12': {
+                  'read': {
+                    'file_name_3':[
+                      [[256, 10240], 30],
+                      [[2048, 1024], 110]
+                    ]
+                  }
+                }
+              };
+              setOverlapRead(aa);
             })
             .catch((err) => {
               console.error(err);

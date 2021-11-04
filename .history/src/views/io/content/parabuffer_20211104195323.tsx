@@ -73,6 +73,7 @@ const ParabufferPanel: React.FC<ParabufferProps> = (props) => {
       columnsGroup[key] = columnItem;
       dataSourceGroup[key] = dataItem;
     });
+    console.log('--- columnsGroup ---', columnsGroup, dataSourceGroup);
     setParabufferTimes(keys);
     setParabufferCurrent(keys[0]);
     setParabufferColumns(columnsGroup);
@@ -81,6 +82,7 @@ const ParabufferPanel: React.FC<ParabufferProps> = (props) => {
   }, [data]);
 
   const onParabufferTimeClick = (value: string) => {
+    console.log(value);
     setParabufferCurrent(value);
   };
 
